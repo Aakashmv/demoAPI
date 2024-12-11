@@ -15,15 +15,11 @@ func InitDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Drop the table if it exists to ensure the correct schema
 	dropTableSQL := `DROP TABLE IF EXISTS users;`
 	_, err = DB.Exec(dropTableSQL)
 	if err != nil {
-		log.Fatal("Error dropping table:", err)
+		log.Fatal(err)
 	}
-
-	// Create the table with the correct schema
 	createTableSQL := `
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,5 +32,5 @@ CREATE TABLE users (
 		log.Fatal("Error creating table:", err)
 	}
 
-	log.Println("Database initialized with users table.")
+	log.Println("Database initialized.")
 }

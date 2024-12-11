@@ -55,7 +55,6 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Insert without explicitly passing created_at
 	result, err := db.DB.Exec("INSERT INTO users (name, email) VALUES (?, ?)", user.Name, user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -65,7 +64,6 @@ func CreateUser(c *gin.Context) {
 	id, _ := result.LastInsertId()
 	user.ID = int(id)
 
-	// Fetch the created_at timestamp
 	row := db.DB.QueryRow("SELECT created_at FROM users WHERE id = ?", id)
 	err = row.Scan(&user.CreatedAt)
 	if err != nil {
