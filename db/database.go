@@ -16,17 +16,25 @@ func InitDB() {
 		log.Fatal(err)
 	}
 
-	createTableSQL := `
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		email TEXT NOT NULL UNIQUE
-	);`
-
-	_, err = DB.Exec(createTableSQL)
+	// Drop the table if it exists to ensure the correct schema
+	dropTableSQL := `DROP TABLE IF EXISTS users;`
+	_, err = DB.Exec(dropTableSQL)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error dropping table:", err)
 	}
 
-	log.Println("Database initialized.")
+	// Create the table with the correct schema
+	createTableSQL := `
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);`
+	_, err = DB.Exec(createTableSQL)
+	if err != nil {
+		log.Fatal("Error creating table:", err)
+	}
+
+	log.Println("Database initialized with users table.")
 }
