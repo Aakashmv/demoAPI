@@ -11,7 +11,7 @@ import (
 )
 
 func GetUsers(c *gin.Context) {
-	rows, err := db.DB.Query("SELECT id, name, email FROM users")
+	rows, err := db.DB.Query("SELECT id, name, email, created_at FROM users")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -21,7 +21,7 @@ func GetUsers(c *gin.Context) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -33,10 +33,10 @@ func GetUsers(c *gin.Context) {
 
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	row := db.DB.QueryRow("SELECT id, name, email FROM users WHERE id = ?", id)
+	row := db.DB.QueryRow("SELECT id, name, email, created_at FROM users WHERE id = ?", id)
 
 	var user models.User
-	err := row.Scan(&user.ID, &user.Name, &user.Email)
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
 		return
@@ -63,6 +63,13 @@ func CreateUser(c *gin.Context) {
 
 	id, _ := result.LastInsertId()
 	user.ID = int(id)
+
+	row := db.DB.QueryRow("SELECT created_at FROM users WHERE id = ?", id)
+	err = row.Scan(&user.CreatedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusCreated, user)
 }
